@@ -6,11 +6,17 @@ Unittest classes:
     TestBaseModel_save
     TestBaseModel_to_dict
 """
-import os
+import os 
+import sys
 import models
 import unittest
 from datetime import datetime
 from time import sleep
+
+# Assuming the test script is in the tests directory, add the project root to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 from models.base_model import BaseModel
 
 
