@@ -1,12 +1,34 @@
 #!/usr/bin/python3
+<<<<<<< HEAD
 """Test BaseModel for expected behavior and documentation"""
 from datetime import datetime
 import inspect
+=======
+"""Defines unittests for models/base_model.py.
+
+Unittest classes:
+    TestBaseModel_instantiation
+    TestBaseModel_save
+    TestBaseModel_to_dict
+"""
+import os 
+import sys
+>>>>>>> 5608058b145e61a8e236a5879f368123d8dd009c
 import models
 import pep8 as pycodestyle
 import time
 import unittest
+<<<<<<< HEAD
 from unittest import mock
+=======
+from datetime import datetime
+from time import sleep
+
+# Assuming the test script is in the tests directory, add the project root to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
+>>>>>>> 5608058b145e61a8e236a5879f368123d8dd009c
 from models.base_model import BaseModel
 
 BaseModel = models.base_model.BaseModel
