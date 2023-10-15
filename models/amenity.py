@@ -1,26 +1,13 @@
-#!/usr/bin/python
-""" Holds class Amenity """
-import models
+#!/usr/bin/python3
+'''class inherent of BaseModel'''
 from models.base_model import BaseModel
-from os import getenv
-
-if models.storage_t == "db":
-    from sqlalchemy import Column, String
-    from sqlalchemy.orm import relationship
-    from models.base_model import Base
 
 
 class Amenity(BaseModel):
-    """ Representation of Amenity """
-    if models.storage_t == 'db':
-        __tablename__ = 'amenities'
-        name = Column(String(128), nullable=False)
+    '''class amenity'''
 
-        place_amenities = relationship("Place", secondary="place_amenity")
-
-    else:
-        name = ""
+    name = ""
 
     def __init__(self, *args, **kwargs):
-        """ Initializes Amenity """
+        """initializes Amenity"""
         super().__init__(*args, **kwargs)

@@ -1,34 +1,12 @@
 #!/usr/bin/python3
-""" Holds class User """
-import models
+'''A class user that inherent from BaseModel'''
 from models.base_model import BaseModel
-
-if models.storage_t == "db":
-    from sqlalchemy import Column, String
-    from sqlalchemy.orm import relationship
-    from models.base_model import Base
 
 
 class User(BaseModel):
-    """ Representation of a user """
-    if models.storage_t == 'db':
-        __tablename__ = 'users'
-        email = Column(String(128), nullable=False)
-        password = Column(String(128), nullable=False)
-        first_name = Column(String(128), nullable=True)
-        last_name = Column(String(128), nullable=True)
-        places = relationship("Place", backref="user")
-        reviews = relationship("Review", backref="user")
+    '''represent a class User'''
 
-    else:
-        email = ""
-        password = ""
-        first_name = ""
-        last_name = ""
-
-    def __init__(self, *args, **kwargs):
-        """ Initializes user """
-        super().__init__(*args, **kwargs)
-        if self.password:
-            hashed_password = hashlib.md5(self.password.encode("utf-8"))
-            self.password = hashed_password.hexdigest()
+    email = ""
+    password = ""
+    first_name = ""
+    last_name = ""

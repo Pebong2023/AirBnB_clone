@@ -1,76 +1,46 @@
 #!/usr/bin/python3
-"""
-Contains class BaseModel
-"""
+'''module base_model'''
 
-from datetime import datetime
-from os import getenv
+
 import uuid
+from datetime import datetime
 import models
 
-time_format = "%Y-%m-%dT%H:%M:%S.%f"
 
-if models.storage_t == "db":
-    import sqlalchemy
-    from sqlalchemy import Column, String, DateTime
-    from sqlalchemy.ext.declarative import declarative_base
-    Base = declarative_base()
-else:
-    Base = object
-
-
-class BaseModel(Base):
-    """The BaseModel class from which future classes will be derived"""
-    if models.storage_t == "db":
-        id = Column(String(60), primary_key=True, nullable=False, unique=True)
-        created_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
-        updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
-
+class BaseModel():
+    '''class BaseModel'''
     def __init__(self, *args, **kwargs):
-        """Initialization of the base model"""
+        '''class constructor for class BaseModel'''
         if kwargs:
+            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+                                                     '%Y-%m-%dT%H:%M:%S.%f')
+            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+                                                     '%Y-%m-%dT%H:%M:%S.%f')
+
             for key, value in kwargs.items():
-                if key != "__class__":
+                if key != '__class__':
                     setattr(self, key, value)
-            created_at = kwargs.get("created_at")
-            if created_at and type(created_at) is str:
-                self.created_at = datetime.strptime(created_at, time_format)
-            else:
-                self.created_at = datetime.utcnow()
-            updated_at = kwargs.get("updated_at")
-            if updated_at and type(updated_at) is str:
-                self.updated_at = datetime.strptime(updated_at, time_format)
-            else:
-                self.updated_at = datetime.utcnow()
-            if not kwargs.get("id"):
-                self.id = str(uuid.uuid4())
         else:
             self.id = str(uuid.uuid4())
-            self.created_at = datetime.utcnow()
-            self.updated_at = self.created_at
+            self.created_at = datetime.now()
+            self.updated_at = datetime.now()
+            models.storage.new(self)
 
     def __str__(self):
-        """String representation of the BaseModel class"""
-        return "[{:s}] ({:s}) {}".format(self.__class__.__name__, self.id, self.__dict__)
+        '''string of BaseModel instance'''
+        return "[{}] ({}) {}".format(self.__class__.__name__,
+                                     self.id, self.__dict__)
 
     def save(self):
-        """updates the attribute 'updated_at' with the current datetime"""
-        self.updated_at = datetime.utcnow()
-        models.storage.new(self)
+        '''updates 'updated_at' instance with current datetime'''
+        self.updated_at = datetime.now()
         models.storage.save()
 
     def to_dict(self):
-        """returns a dictionary containing all keys/values of the instance"""
-        new_dict = self.__dict__.copy()
-        if "created_at" in new_dict:
-            new_dict["created_at"] = new_dict["created_at"].strftime(time_format)
-        if "updated_at" in new_dict:
-            new_dict["updated_at"] = new_dict["updated_at"].strftime(time_format)
-        new_dict["__class__"] = self.__class__.__name__
-        if "_sa_instance_state" in new_dict:
-            del new_dict["_sa_instance_state"]
-        return new_dict
+        '''dictionary representation of instance'''
+        new_dict = dict(self.__dict__)
+        new_dict['created_at'] = self.__dict__['created_at'].isoformat()
+        new_dict['updated_at'] = self.__dict__['updated_at'].isoformat()
+        new_dict['__class__'] = self.__class__.__name__
+        return (new_dict)
 
-    def delete(self):
-        """delete the current instance from the storage"""
-        models.storage.delete(self)
