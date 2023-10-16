@@ -1,70 +1,117 @@
 #!/usr/bin/python3
-"""file_storage.py module"""
+"""Test case FileStorage module"""
+import unittest
+import os
+import contextlib
 import json
+import models
+import pep8
+
+# class
+from models.engine.file_storage import FileStorage
 from models.base_model import BaseModel
-from models.user import User
 from models.amenity import Amenity
 from models.city import City
 from models.place import Place
 from models.review import Review
 from models.state import State
+from models.user import User
 
 
-class FileStorage():
-    """
-    FileStorage class:
-    ------------------
-    """
-    __file_path = "file.json"
-    __objects = {}
+class TestFileStorage(unittest.TestCase):
+    """Test FileStorage"""
 
-    def all(self):
-        """
-        public instance method that returns the
-        dictionary __objects.
-        """
-        return FileStorage.__objects
+    def test_pep8_FileStorage(self):
+        """Tests pep8 style"""
+        style = pep8.StyleGuide(quiet=True)
+        p = style.check_files(['models/engine/file_storage.py'])
+        self.assertEqual(p.total_errors, 0, "fix pep8")
 
-    def new(self, obj):
-        """
-        public instance method that sets in __objects
-        the obj with key <obj class name>.id
-        Variables:
-        ----------
-        key [str] -- key format generated.
-        """
-        if obj:
-            key = "{}.{}".format(obj.__class__.__name__, obj.id)
-            FileStorage.__objects[key] = obj
+    def setUp(self):
+        """Sets up the class test"""
 
-    def save(self):
-        """
-        public instance method that serializes __objects
-        to the JSON file (path: __file_path).
-        Variables:
-        ----------
-        new_dict [dict] -- keys and values to build JSON.
-        """
-        new_dict = {}
-        for key, value in FileStorage.__objects.items():
-            new_dict[key] = value.to_dict().copy()
-        with open(FileStorage.__file_path, mode='w') as my_file:
-            json.dump(new_dict, my_file)
-
-    def reload(self):
-        """
-        public instance method that deserializes a JSON
-        file to __objects.
-        """
-        try:
-            with open(FileStorage.__file_path, mode='r') as my_file:
-                new_dict = json.load(my_file)
-
-            for key, value in new_dict.items():
-                class_name = value.get('__class__')
-                obj = eval(class_name + '(**value)')
-                FileStorage.__objects[key] = obj
-
-        except FileNotFoundError:
+        self.b1 = BaseModel()
+        self.a1 = Amenity()
+        self.c1 = City()
+        self.p1 = Place()
+        self.r1 = Review()
+        self.s1 = State()
+        self.u1 = User()
+        self.storage = FileStorage()
+        self.storage.save()
+        if os.path.exists("file.json"):
             pass
+        else:
+            os.mknod("file.json")
 
+    def tearDown(self):
+        """Tears down the testing environment"""
+
+        del self.b1
+        del self.a1
+        del self.c1
+        del self.p1
+        del self.r1
+        del self.s1
+        del self.u1
+        del self.storage
+        if os.path.exists("file.json"):
+            os.remove("file.json")
+
+    def test_all(self):
+        """Check the all"""
+        obj = self.storage.all()
+        self.assertIsNotNone(obj)
+        self.assertEqual(type(obj), dict)
+        self.assertIs(obj, self.storage._FileStorage__objects)
+
+    def test_storage_empty(self):
+        """check the storage is not empty"""
+
+        self.assertIsNotNone(self.storage.all())
+
+    def test_storage_all_type(self):
+        """check the type of storage"""
+
+        self.assertEqual(dict, type(self.storage.all()))
+
+    def test_new(self):
+        """check the new user"""
+        obj = self.storage.all()
+        self.u1.id = 1234
+        self.u1.name = "Julien"
+        self.storage.new(self.u1)
+        key = "{}.{}".format(self.u1.__class__.__name__, self.u1.id)
+        self.assertIsNotNone(obj[key])
+
+    def test_check_json_loading(self):
+        """ Checks if methods from Storage Engine works."""
+
+        with open("file.json") as f:
+            dic = json.load(f)
+
+            self.assertEqual(isinstance(dic, dict), True)
+
+    def test_file_existence(self):
+        """
+        Checks if methods from Storage Engine works.
+        """
+
+        with open("file.json") as f:
+            self.assertTrue(len(f.read()) > 0)
+
+    def test_docstrings(self):
+        """Check the docString each function"""
+
+        self.assertTrue(FileStorage.all.__doc__)
+        self.assertTrue(hasattr(FileStorage, 'all'))
+        self.assertTrue(FileStorage.new.__doc__)
+        self.assertTrue(hasattr(FileStorage, 'new'))
+        self.assertTrue(FileStorage.save.__doc__)
+        self.assertTrue(hasattr(FileStorage, 'save'))
+        self.assertTrue(FileStorage.reload.__doc__)
+        self.assertTrue(hasattr(FileStorage, 'reload'))
+
+
+if __name__ == '__main__':
+    unittest.main()
